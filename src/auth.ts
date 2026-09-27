@@ -1,5 +1,4 @@
 import {
-  AppleAuthProvider,
   GoogleAuthProvider,
   OAuthProvider,
   User,
@@ -51,7 +50,15 @@ export async function signInWithGoogle() {
     return null;
   }
 
-  return signInWithPopup(auth, googleProvider);
+  try {
+    return await signInWithPopup(auth, googleProvider);
+  } catch (error) {
+    if ((error as { code?: string })?.code === 'auth/popup-blocked') {
+      await signInWithRedirect(auth, googleProvider);
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function signInWithApple() {
@@ -66,7 +73,15 @@ export async function signInWithApple() {
     return null;
   }
 
-  return signInWithPopup(auth, appleProvider);
+  try {
+    return await signInWithPopup(auth, appleProvider);
+  } catch (error) {
+    if ((error as { code?: string })?.code === 'auth/popup-blocked') {
+      await signInWithRedirect(auth, appleProvider);
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function logout() {
